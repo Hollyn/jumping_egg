@@ -3,7 +3,6 @@ import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:jumping_egg/game/game.dart';
 
-
 JumpingEgg _game = JumpingEgg();
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,4 +19,3 @@ class MyApp extends StatelessWidget {
     return GameWidget(game: _game);
   }
 }
-
