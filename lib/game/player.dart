@@ -1,17 +1,38 @@
+import 'dart:ui';
+
 import 'package:flame/components.dart';
+import 'package:flame/geometry.dart';
+import 'package:flame/palette.dart';
+import 'package:jumping_egg/game/game.dart';
+import 'package:jumping_egg/helpers/constant.dart';
+
+import 'coin.dart';
 
 const double gravity = 800.0;
 const double boost = -700.0;
+bool _isCollectCoin = false;
 
-class Player extends SpriteComponent with HasGameRef {
+late HitboxCircle shape;
+
+class Player extends SpriteComponent with HasHitboxes, Collidable {
   double _speedY = 0.0;
   bool _stop = true;
   bool _dead = false;
+  bool _canJump = true;
+  int _relativePosition = kStartRelativePosition;
+  int _score = kStartScore;
+  int _health = kStartHealth;
+  late int _coin;
+  final int _topRelativePosition = kTopRelativePosition;
+  final JumpingEgg gameRef;
+
   Player({
     Sprite? sprite,
     Vector2? size,
     Vector2? position,
     int? priority,
+    int? initCoin,
+    required this.gameRef,
   }) : super(
           position: position,
           size: size,
@@ -19,10 +40,32 @@ class Player extends SpriteComponent with HasGameRef {
           priority: priority,
         ) {
     anchor = Anchor(0.5, 0.7);
+
+    shape = HitboxCircle(normalizedRadius: .5);
+    addHitbox(shape);
+    if (initCoin != null) {
+      _coin = initCoin;
+    }
+  }
+
+  @override
+  void onCollision(Set<Vector2> intersectionPoints, Collidable other) {
+    if (other is Coin) {
+      _isCollectCoin = true;
+    }
   }
 
   @override
   void update(double dt) {
+    if (_isCollectCoin) {
+      if (gameRef.scoreController.getPlayerData().soundEffect) {
+        gameRef.soundPlayerComponent.playSound('collect_coin.wav');
+      }
+      _coin++;
+      gameRef.addCoinToUserData();
+      _isCollectCoin = false;
+    }
+
     super.update(dt);
     if (_stop) {
       return;
@@ -32,6 +75,9 @@ class Player extends SpriteComponent with HasGameRef {
     _speedY += gravity * dt;
 
     if (y > gameRef.size.y) {
+      if (gameRef.scoreController.getPlayerData().soundEffect) {
+        gameRef.soundPlayerComponent.playSound('fall.wav');
+      }
       _dead = true;
     }
   }
@@ -40,13 +86,20 @@ class Player extends SpriteComponent with HasGameRef {
     _speedY = 0.0;
     _stop = true;
     _dead = false;
+    _canJump = true;
   }
 
   void jump() {
     if (_stop) {
       _stop = false;
     }
-    _speedY = boost;
+    if (_canJump) {
+      _speedY = boost;
+      if (gameRef.scoreController.getPlayerData().soundEffect) {
+        gameRef.soundPlayerComponent.playSound('jump.mp3');
+      }
+    }
+    _canJump = false;
   }
 
   bool isDead() {
@@ -71,5 +124,84 @@ class Player extends SpriteComponent with HasGameRef {
 
   double get right {
     return x + width / 2;
+  }
+
+  int getCurrentRelativePosition() {
+    return _relativePosition;
+  }
+
+  void updateRelativePosition() {
+    _relativePosition++;
+  }
+
+  int getNextRelativePosition() {
+    return _relativePosition + 1;
+  }
+
+  void setRelativePosition(int position) {
+    _relativePosition = position;
+  }
+
+  void resetRelativePosition() {
+    _relativePosition = 0;
+  }
+
+  bool isInTopRelativePosition() {
+    return _relativePosition == _topRelativePosition;
+  }
+
+  bool isStop() {
+    return _speedY == 0;
+  }
+
+  int getTopRelativePosition() {
+    return _topRelativePosition;
+  }
+
+  int getCurrentHealth() {
+    return _health;
+  }
+
+  void decreaseHealth() {
+    _health--;
+    if (_health <= 0) {
+      _health = 0;
+    }
+  }
+
+  void increaseHealth() {
+    _health++;
+  }
+
+  int getCurrentScore() {
+    return _score;
+  }
+
+  void increaseScore() {
+    _score++;
+  }
+
+  void resetData() {
+    _score = kStartScore;
+    _health = kStartHealth;
+    _relativePosition = kStartRelativePosition;
+  }
+
+  int getCurrentCoin() {
+    return _coin;
+  }
+
+  void setCurrentCoin(int value) {
+    _coin = value;
+  }
+
+  final Paint hitboxPaint = BasicPalette.red.paint()
+    ..style = PaintingStyle.stroke;
+  final Paint dotPaint = BasicPalette.red.paint()..style = PaintingStyle.stroke;
+
+  @override
+  void render(Canvas canvas) {
+    super.render(canvas);
+    shape.render(canvas, hitboxPaint);
   }
 }

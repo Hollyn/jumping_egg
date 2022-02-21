@@ -1,13 +1,14 @@
 import 'package:flame/flame.dart';
-import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
-import 'package:jumping_egg/game/game.dart';
+import 'package:jumping_egg/controllers/score_controller.dart';
+import 'package:jumping_egg/screens/main_menu.dart';
 
-JumpingEgg _game = JumpingEgg();
-void main() {
+late ScoreController scoreController;
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  Flame.device.fullScreen();
-
+  scoreController = ScoreController();
+  await scoreController.start();
+  Flame.device.fullScreen(); // run app in fullscreen
   runApp(const MyApp());
 }
 
@@ -16,6 +17,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GameWidget(game: _game);
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        fontFamily: 'GamePlay',
+      ),
+      home: MainMenu(
+        scoreController: scoreController,
+      ),
+    );
   }
 }

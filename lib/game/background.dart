@@ -1,13 +1,15 @@
-import 'dart:ui';
-import 'package:flame/components.dart';
+// import 'package:flame/components.dart';
+// import 'package:flame/parallax.dart';
 
-class Background extends Component {
-  static final Paint _paint = Paint()..color = const Color(0xFF88D093);
-
-  @override
-  void render(Canvas canvas) {
-    super.render(canvas);
-
-    canvas.drawRect(Rect.largest, _paint);
-  }
-}
+// class Background extends ParallaxComponent {
+//   Background(List<ParallaxImage> images)
+//       : super(
+//       Parallax? parallax,
+//       Vector2? position,
+//       Vector2? size,
+//       Vector2? scale,
+//       double? angle,
+//       Anchor? anchor,
+//       int? priority,
+//       images, baseSpeed: Offset(100, 0), layerDelta: Offset(20, 0));
+// }
