@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flame/components.dart';
 import 'package:jumping_egg/game/coin.dart';
 import 'package:jumping_egg/game/game.dart';
+import 'package:jumping_egg/helpers/constant.dart';
 
 class CoinManager extends Component {
   late Random random;
@@ -18,7 +19,7 @@ class CoinManager extends Component {
   }
 
   void _spawnCoin() {
-    int playerScore = gameRef.player.getCurrentScore();
+    int playerScore = gameRef.player.getCurrentScore() as int;
     coinList = gameRef.children.whereType<Coin>().toList();
     if (playerScore > 0 && (coinList.isEmpty)) {
       addCoin(random.nextInt(2) + 1);
@@ -40,7 +41,10 @@ class CoinManager extends Component {
   void addCoin(int position) {
     final Vector2 coinPosition =
         gameRef.basketManager.getBasketAt(position).position.clone();
-    coin = Coin(sprite: sprite, size: Vector2(80, 80), position: coinPosition);
+    coin = Coin(
+        sprite: sprite,
+        size: Vector2(kCoinSize, kCoinSize),
+        position: coinPosition);
     gameRef.add(coin);
   }
 

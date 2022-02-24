@@ -1,4 +1,4 @@
-// import 'package:flame/components.dart';
+// import 'package:flame/widgets.dart';
 // import 'package:flame/parallax.dart';
 
 // class Background extends ParallaxComponent {

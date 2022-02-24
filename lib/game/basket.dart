@@ -3,7 +3,7 @@ import 'package:flame/components.dart';
 class Basket extends SpriteComponent with HasGameRef {
   bool isFalling = false;
   final double _speed = 250.0;
-  // Vector2 _velocity = Vector2.zero();
+  Vector2 _velocity = Vector2.zero();
   Basket({
     Sprite? sprite,
     Vector2? size,
@@ -19,7 +19,7 @@ class Basket extends SpriteComponent with HasGameRef {
         ) {
     anchor = Anchor.center;
     if (direction != null) {
-      // _velocity = direction;
+      _velocity = direction;
     }
   }
 
