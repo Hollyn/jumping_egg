@@ -8,8 +8,6 @@ import 'package:jumping_egg/helpers/constant.dart';
 
 import 'coin.dart';
 
-const double gravity = 800.0;
-const double boost = -700.0;
 bool _isCollectCoin = false;
 
 late HitboxCircle shape;
@@ -33,14 +31,16 @@ class Player extends SpriteComponent with HasHitboxes, Collidable {
     Vector2? position,
     int? priority,
     int? initCoin,
+    Anchor? anchor,
     required this.gameRef,
   }) : super(
           position: position,
           size: size,
           sprite: sprite,
           priority: priority,
+          anchor: anchor,
         ) {
-    anchor = Anchor(0.5, 0.7);
+    // anchor = Anchor(0.5, 0.7);
 
     shape = HitboxCircle(normalizedRadius: .5);
     addHitbox(shape);
@@ -79,10 +79,10 @@ class Player extends SpriteComponent with HasHitboxes, Collidable {
       return;
     }
 
-    y += _speedY * dt - gravity * dt * dt / 2;
-    _speedY += gravity * dt;
+    y += _speedY * dt - kPlayerGravity * dt * dt / 2;
+    _speedY += kPlayerGravity * dt;
 
-    if (y > gameRef.size.y) {
+    if (y > gameRef.size.y + kEggSize) {
       if (gameRef.scoreController.getPlayerData().soundEffect) {
         // gameRef.soundPlayerComponent.playSound('fall.wav');
       }
@@ -102,7 +102,7 @@ class Player extends SpriteComponent with HasHitboxes, Collidable {
       _stop = false;
     }
     if (_canJump) {
-      _speedY = boost;
+      _speedY = kPlayerBoost;
       if (gameRef.scoreController.getPlayerData().soundEffect) {
         // gameRef.soundPlayerComponent.playSound('jump.mp3');
       }

@@ -20,7 +20,7 @@ class MainMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xffFCF6FA),
+      backgroundColor: Color(0xdefee3bc),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [

@@ -17,7 +17,12 @@ final kDefaultTextGamePlayOverlayStyle = TextPaint(
   ),
 );
 
+const double kPlayerGravity = 800.0;
+const double kPlayerBoost = -600.0;
 const double kSpriteSize = 128.0;
+const double kSpeedParallax = 150.0;
+const double kSpeedY = 300.0;
+const double kSpeedBasket = 75.0;
 const kStartHealth = 6;
 const kStartScore = 0;
 const kStartRelativePosition = 0;
@@ -30,7 +35,7 @@ const kCoinSize = 40.0;
 const kEggSize = 96.0;
 const kBgComponentWidth = 144.0;
 const kBgComponentHeight = 80.0;
-const kBgComponentMargin = 10.0;
+const kBgComponentMargin = 0.0;
 const kTextMargin = 3.0;
 Vector2 kGameResolution = Vector2(360.0, 640);
 const kDefaultOverlayTitleStyle = TextStyle(
@@ -77,7 +82,7 @@ BoxDecoration kDefaultOverlayBoxDecoration = BoxDecoration(
     width: 8,
   ),
   borderRadius: BorderRadius.circular(12),
-  color: Color(0x55fde2be),
+  color: Color(0xccfde2be),
 );
 BoxDecoration kListItemBoxDecoration = BoxDecoration(
   border: Border.all(
@@ -91,3 +96,4 @@ const kMultiPlayerInstruction =
     'If you want to play with your friend, you can choose to be the host and you friend to be the guest or vice versa.';
 const kSelectGuestText = 'Select a guest: ';
 const kTryAgainText = 'Retry if you cannot see your friend';
+Vector2 kBasketContainerSize = Vector2(250.0, 150.0);

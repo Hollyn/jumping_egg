@@ -40,7 +40,7 @@ class CoinManager extends Component {
 
   void addCoin(int position) {
     final Vector2 coinPosition =
-        gameRef.basketManager.getBasketAt(position).position.clone();
+        gameRef.basketManager.getBasketContainerAt(position).position.clone();
     coin = Coin(
       sprite: sprite,
       size: Vector2(kCoinSize, kCoinSize),

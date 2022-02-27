@@ -1,10 +1,12 @@
 import 'package:flame/components.dart';
+import 'package:jumping_egg/helpers/constant.dart';
 
 class Basket extends SpriteComponent with HasGameRef {
   bool isFalling = false;
-  final double _speed = 250.0;
   Vector2 _velocity = Vector2.zero();
-  Basket({
+  final PositionComponent parent;
+  Basket(
+    PositionComponent this.parent, {
     Sprite? sprite,
     Vector2? size,
     required Vector2 position,
@@ -39,16 +41,18 @@ class Basket extends SpriteComponent with HasGameRef {
     return x + width / 2;
   }
 
+  Vector2 get velocity => _velocity;
+
   @override
   void update(double dt) {
     if (isFalling) {
-      position += Vector2(0, 1) * _speed * dt;
+      position += Vector2(0, 1) * kSpeedY * dt;
     } else {
-      // position += _velocity * _speed * dt;
-      if (position.y >= gameRef.size.y - 50 ||
-          position.y <= 50 ||
-          position.x >= gameRef.size.x - 50 ||
-          position.x <= 50) {
+      position += _velocity * kSpeedBasket * dt;
+      if ((position.y >= parent.size.y && _velocity.y > 0) ||
+          (position.y <= 0 && _velocity.y < 0) ||
+          (position.x >= parent.size.x && _velocity.x > 0) ||
+          (position.x <= 0 && _velocity.x < 0)) {
         _velocity.negate();
       }
     }

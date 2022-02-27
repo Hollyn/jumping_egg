@@ -57,114 +57,117 @@ class _MultiplayerPageState extends State<MultiplayerPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          Align(
-            alignment: Alignment.topLeft,
-            child: TextButton(
-                child: Icon(
-                  Icons.arrow_back_rounded,
-                  color: kCharacterColor,
-                  size: 60,
-                ),
-                onPressed: () {
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                      builder: (context) => MainMenu(
-                        scoreController: scoreController,
-                        serverClientController: serverClientController,
-                        multiplayerGameData: multiplayerGameData,
+      body: Container(
+        color: Color(0xdefee3bc),
+        child: Column(
+          children: [
+            Align(
+              alignment: Alignment.topLeft,
+              child: TextButton(
+                  child: Icon(
+                    Icons.arrow_back_rounded,
+                    color: kCharacterColor,
+                    size: 60,
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(
+                        builder: (context) => MainMenu(
+                          scoreController: scoreController,
+                          serverClientController: serverClientController,
+                          multiplayerGameData: multiplayerGameData,
+                        ),
                       ),
-                    ),
-                  );
-                }),
-          ),
-          Row(
-            children: [
-              if (playerEnum == PlayerEnum.nothing ||
-                  playerEnum == PlayerEnum.host)
-                Expanded(
-                  child: ButtonTextWithBackground(
-                    title: "Host",
-                    onPressed: (playerEnum == PlayerEnum.host)
-                        ? () {}
-                        : () {
-                            setState(() {
-                              playerEnum = PlayerEnum.host;
-                              serverClientController.startServer(
-                                _onHostConnected,
-                                _onHostReceiveData,
-                              );
-                            });
-                          },
-                  ),
-                ),
-              if (playerEnum == PlayerEnum.nothing ||
-                  playerEnum == PlayerEnum.guest)
-                Expanded(
-                  child: ButtonTextWithBackground(
-                    onPressed: (playerEnum == PlayerEnum.guest)
-                        ? () {}
-                        : () {
-                            setState(() {
-                              displayDialog(context);
-                              playerEnum = PlayerEnum.guest;
-                            });
-                          },
-                    title: 'Guest',
-                  ),
-                ),
-            ],
-          ),
-          SizedBox(
-            height: 24,
-          ),
-          if (playerEnum == PlayerEnum.nothing)
-            Column(
+                    );
+                  }),
+            ),
+            Row(
               children: [
-                const Icon(
-                  Icons.arrow_upward_rounded,
-                  color: kCharacterColor,
-                  size: 60,
-                ),
-                SizedBox(
-                  height: 18,
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: 0, horizontal: 20),
-                  child: Text(
-                    kMultiPlayerInstruction,
-                    textAlign: TextAlign.center,
-                    style: kInstructionTextStyle,
+                if (playerEnum == PlayerEnum.nothing ||
+                    playerEnum == PlayerEnum.host)
+                  Expanded(
+                    child: ButtonTextWithBackground(
+                      title: "Host",
+                      onPressed: (playerEnum == PlayerEnum.host)
+                          ? () {}
+                          : () {
+                              setState(() {
+                                playerEnum = PlayerEnum.host;
+                                serverClientController.startServer(
+                                  _onHostConnected,
+                                  _onHostReceiveData,
+                                );
+                              });
+                            },
+                    ),
                   ),
-                ),
+                if (playerEnum == PlayerEnum.nothing ||
+                    playerEnum == PlayerEnum.guest)
+                  Expanded(
+                    child: ButtonTextWithBackground(
+                      onPressed: (playerEnum == PlayerEnum.guest)
+                          ? () {}
+                          : () {
+                              setState(() {
+                                displayDialog(context);
+                                playerEnum = PlayerEnum.guest;
+                              });
+                            },
+                      title: 'Guest',
+                    ),
+                  ),
               ],
             ),
-          if (playerEnum == PlayerEnum.host)
-            HostWidget(
-              serverClientController: serverClientController,
-              scoreController: scoreController,
-              isHostConnected: isHostConnected,
-              isHostReceiveData: isHostReceiveData,
-              hostData: hostData,
-              guestOption: guestOption,
-              guestList: guestList,
-              onFindingGuest: _onFindingGuest,
-              multiplayerGameData: multiplayerGameData,
+            SizedBox(
+              height: 24,
             ),
-          if (playerEnum == PlayerEnum.guest)
-            GuestWidget(
-              serverClientController: serverClientController,
-              multiplayerGameData: multiplayerGameData,
-              scoreController: scoreController,
-              displayDialog: displayDialog,
-              isGuestConnected: isGuestConnected,
-              guestData: guestData,
-              isGuestChoseName: isGuestChoseName,
-              isGuestReceiveData: isGuestReceiveData,
-              guestChooseName: guestChooseName,
-            ),
-        ],
+            if (playerEnum == PlayerEnum.nothing)
+              Column(
+                children: [
+                  const Icon(
+                    Icons.arrow_upward_rounded,
+                    color: kCharacterColor,
+                    size: 60,
+                  ),
+                  SizedBox(
+                    height: 18,
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 0, horizontal: 20),
+                    child: Text(
+                      kMultiPlayerInstruction,
+                      textAlign: TextAlign.center,
+                      style: kInstructionTextStyle,
+                    ),
+                  ),
+                ],
+              ),
+            if (playerEnum == PlayerEnum.host)
+              HostWidget(
+                serverClientController: serverClientController,
+                scoreController: scoreController,
+                isHostConnected: isHostConnected,
+                isHostReceiveData: isHostReceiveData,
+                hostData: hostData,
+                guestOption: guestOption,
+                guestList: guestList,
+                onFindingGuest: _onFindingGuest,
+                multiplayerGameData: multiplayerGameData,
+              ),
+            if (playerEnum == PlayerEnum.guest)
+              GuestWidget(
+                serverClientController: serverClientController,
+                multiplayerGameData: multiplayerGameData,
+                scoreController: scoreController,
+                displayDialog: displayDialog,
+                isGuestConnected: isGuestConnected,
+                guestData: guestData,
+                isGuestChoseName: isGuestChoseName,
+                isGuestReceiveData: isGuestReceiveData,
+                guestChooseName: guestChooseName,
+              ),
+          ],
+        ),
       ),
     );
   }

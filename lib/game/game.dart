@@ -7,6 +7,7 @@ import 'package:flame/input.dart';
 import 'package:flame/parallax.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:jumping_egg/controllers/score_controller.dart';
+import 'package:jumping_egg/game/basket_container.dart';
 import 'package:jumping_egg/game/basket_manager.dart';
 import 'package:jumping_egg/game/coin_manager.dart';
 import 'package:jumping_egg/game/game_text.dart';
@@ -22,13 +23,6 @@ import 'package:jumping_egg/overlays/pause_menu.dart';
 import 'package:jumping_egg/overlays/sound_pause_buttons.dart';
 
 import '../overlays/game_over_multiplayer.dart';
-
-// const width = 128.0;
-// const height = 128.0;
-const width = 100.0;
-const height = 50.0;
-const gravity = 400.0;
-const boost = -450.0;
 
 late ParallaxComponent parallaxComponent;
 NestDataManager nestDataManager = NestDataManager();
@@ -53,7 +47,6 @@ class JumpingEgg extends FlameGame with TapDetector, HasCollidables {
   int nestNumber = 0;
   int nestNumber2 = 0;
   bool goingToNextLevel = false;
-  bool goingToNextLevel2 = false;
   late BasketManager basketManager;
   late CoinManager coinManager;
   // late SoundPlayerComponent soundPlayerComponent;
@@ -86,7 +79,7 @@ class JumpingEgg extends FlameGame with TapDetector, HasCollidables {
     parallaxComponent = await loadParallaxComponent(
       imagesParallax,
       baseVelocity: Vector2.zero(),
-      velocityMultiplierDelta: Vector2(1.8, 1.0),
+      velocityMultiplierDelta: Vector2(1.2, 1.1),
       repeat: ImageRepeat.repeatY,
     );
     add(parallaxComponent);
@@ -128,12 +121,11 @@ class JumpingEgg extends FlameGame with TapDetector, HasCollidables {
       }
 
       scorePlayer2 = GameText(
-        text:
-            (serverClientController.isClientRunning) ? 'Host : 0' : 'Guest : 0',
+        text: (serverClientController.isClientRunning) ? '0' : '0',
         anchor: Anchor.topLeft,
         position: Vector2(
           (kBgComponentWidth / 2) + kTextMargin + kBgComponentMargin + 2,
-          kBgComponentHeight * 1.5 + kTextMargin + 1,
+          kBgComponentHeight * 1.5 + kTextMargin - 8,
         ),
       );
       add(scorePlayer2);
@@ -141,7 +133,10 @@ class JumpingEgg extends FlameGame with TapDetector, HasCollidables {
       infoPlayer2 = GameText(
         text: '',
         anchor: Anchor.topLeft,
-        position: Vector2(10, 60),
+        position: Vector2(
+          kTextMargin + kBgComponentMargin + 12,
+          kBgComponentHeight * 2 + kTextMargin + 10,
+        ),
       );
 
       add(infoPlayer2);
@@ -175,7 +170,7 @@ class JumpingEgg extends FlameGame with TapDetector, HasCollidables {
         anchor: Anchor.topRight,
         position: Vector2(
           size.x - (kBgComponentWidth / 2) - kBgComponentMargin - kTextMargin,
-          (kBgComponentHeight / 2) + kTextMargin,
+          (kBgComponentHeight / 2) + kTextMargin - 10,
         ),
       );
 
@@ -184,7 +179,7 @@ class JumpingEgg extends FlameGame with TapDetector, HasCollidables {
         anchor: Anchor.bottomLeft,
         position: Vector2(
           kBgComponentWidth / 2 + kBgComponentMargin + kTextMargin + 1,
-          size.y - kBgComponentHeight / 2 + kTextMargin + 2,
+          size.y - kBgComponentHeight / 2 + kTextMargin + 13,
         ),
       );
 
@@ -203,10 +198,11 @@ class JumpingEgg extends FlameGame with TapDetector, HasCollidables {
     player = Player(
       sprite: Sprite(images.fromCache('sprites/egg.png')),
       size: Vector2(kEggSize, kEggSize),
-      position: Vector2.zero(), // basketManager.getBasketAt(0).position,
+      position: basketManager.getBasketContainerAt(0).position,
       priority: 0,
       initCoin: scoreController.getCoin(),
       gameRef: this,
+      anchor: Anchor(0.5, 0.7),
     );
 
     score = GameText(
@@ -214,7 +210,7 @@ class JumpingEgg extends FlameGame with TapDetector, HasCollidables {
       anchor: Anchor.topLeft,
       position: Vector2(
         kBgComponentWidth / 2 + kBgComponentMargin + kTextMargin + 2,
-        kBgComponentHeight / 2 + kTextMargin + 1,
+        kBgComponentHeight / 2 + kTextMargin - 8,
       ),
     );
 
@@ -269,20 +265,19 @@ class JumpingEgg extends FlameGame with TapDetector, HasCollidables {
       if (isMultiPlayer) {
         gameOverMultiplayer();
       }
-      player.position = basketManager
-          .getBasketAt(player.getCurrentRelativePosition())
-          .position
-          .clone();
-      player.reset();
       // decrease life
       player.decreaseHealth();
 
-      if (player.getCurrentHealth() == 0) {
-        health.text = 'Health : 0';
+      if (player.getCurrentHealth() == 0 && !isMultiPlayer) {
+        health.text = ' 0';
         overlays.remove(SoundPauseButtons.ID);
         overlays.add(GameOverMenu.ID);
         pauseEngine();
+      } else {
+        player.position =
+            positionBasketInGame(player.getCurrentRelativePosition());
       }
+      player.reset();
       return;
     }
 
@@ -290,17 +285,16 @@ class JumpingEgg extends FlameGame with TapDetector, HasCollidables {
     if (player.getSpeedY() > 0) {
       // landing on a basket
       if (player.bottom >
-                  basketManager
-                      .getBasketAt(player.getNextRelativePosition())
-                      .top &&
-              player.bottom <=
-                  basketManager
-                      .getBasketAt(player.getNextRelativePosition())
-                      .bottom
-          // &&
-          // player.left >= basketManager.getBasketAt(nestNumber + 1).left + 5 &&
-          // player.right <= basketManager.getBasketAt(nestNumber + 1).right - 5
-          ) {
+              positionBasketInGame(player.getNextRelativePosition()).y &&
+          player.bottom <=
+              positionBasketInGame(player.getNextRelativePosition()).y +
+                  kSpriteSize / 4 &&
+          player.left >=
+              positionBasketInGame(player.getNextRelativePosition()).x -
+                  kSpriteSize / 2 &&
+          player.right <=
+              positionBasketInGame(player.getNextRelativePosition()).x +
+                  kSpriteSize / 2) {
         if (scoreController.getPlayerData().soundEffect) {
           // soundPlayerComponent.playSound('landing.mp3');
         }
@@ -311,7 +305,7 @@ class JumpingEgg extends FlameGame with TapDetector, HasCollidables {
 
         if (isMultiPlayer) {
           String clientName = serverClientController.clientName;
-          print(clientName);
+          // print(clientName);
           if (serverClientController.isServerRunning) {
             multiplayerGameData.hostScore = player.getCurrentScore();
             serverClientController.serverToClient(
@@ -331,14 +325,23 @@ class JumpingEgg extends FlameGame with TapDetector, HasCollidables {
       }
     }
 
+    // player is in a basket
     if (player.isStop()) {
-      player.position = basketManager
-          .getBasketAt(player.getCurrentRelativePosition())
-          .position
-          .clone();
+      if (goingToNextLevel) {
+        player.position += basketManager
+                .getBasketContainerAt(player.getCurrentRelativePosition())
+                .basket
+                .velocity *
+            kSpeedBasket *
+            dt;
+        player.position += Vector2(0, 1) * kSpeedY * dt;
+      } else {
+        player.position =
+            positionBasketInGame(player.getCurrentRelativePosition());
+      }
     }
 
-    if (goingToNextLevel2) {
+    if (goingToNextLevel) {
       player.setRelativePosition(
         player.getTopRelativePosition() -
             basketManager.getNumberOfBasketDisposed(),
@@ -350,8 +353,17 @@ class JumpingEgg extends FlameGame with TapDetector, HasCollidables {
     }
   }
 
+  Vector2 positionBasketInGame(int playerRelativePosition) {
+    final BasketContainer bC =
+        basketManager.getBasketContainerAt(playerRelativePosition);
+
+    return bC.basket.position +
+        Vector2(size.x / 2, size.y * (3 - playerRelativePosition) / 4) -
+        kBasketContainerSize / 2;
+  }
+
   void goToNextLevel({required bool value}) {
-    goingToNextLevel2 = value;
+    goingToNextLevel = value;
     basketManager.goToNextLevel(value);
     toggleParallax(value);
   }
@@ -359,6 +371,7 @@ class JumpingEgg extends FlameGame with TapDetector, HasCollidables {
   @override
   void onTap() {
     if (!paused) {
+      // basketManager.goToNextLevel(true);
       player.jump();
     }
   }
@@ -396,7 +409,7 @@ class JumpingEgg extends FlameGame with TapDetector, HasCollidables {
 
   void toggleParallax(bool move) {
     if (move == true) {
-      parallaxComponent.parallax?.baseVelocity = Vector2(0, -300);
+      parallaxComponent.parallax?.baseVelocity = Vector2(0, -kSpeedParallax);
     } else {
       parallaxComponent.parallax?.baseVelocity = Vector2.zero();
     }
@@ -422,6 +435,13 @@ class JumpingEgg extends FlameGame with TapDetector, HasCollidables {
       multiplayerGameData.hostDied = true;
       serverClientController.serverToClient(
         serverClientController.clientName,
+        json.encode(multiplayerGameData.toJson()),
+      );
+    }
+
+    if (serverClientController.isClientRunning) {
+      multiplayerGameData.guestDied = true;
+      serverClientController.clientToServer(
         json.encode(multiplayerGameData.toJson()),
       );
     }

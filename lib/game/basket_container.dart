@@ -3,16 +3,19 @@ import 'dart:ui';
 import 'package:flame/components.dart';
 import 'package:flame/geometry.dart';
 import 'package:flame/palette.dart';
+import 'package:flutter/material.dart';
 import 'package:jumping_egg/game/basket.dart';
 import 'package:jumping_egg/game/basket_data_manager.dart';
 import 'package:jumping_egg/game/game.dart';
 import 'package:jumping_egg/helpers/constant.dart';
 
-late HitboxShape shape;
+// late HitboxShape shape;
 
-class BasketContainer extends PositionComponent
-    with HasGameRef<JumpingEgg>, HasHitboxes, Collidable {
+class BasketContainer extends PositionComponent with HasGameRef<JumpingEgg> {
+  // , HasHitboxes, Collidable {
+  late Basket basket;
   final Sprite sprite;
+  late bool _isFalling;
   BasketDataManager basketDataManager = BasketDataManager();
 
   BasketContainer({
@@ -23,6 +26,9 @@ class BasketContainer extends PositionComponent
     double? angle,
     Anchor? anchor,
     int? priority,
+    required bool isFalling,
+    Vector2? velocity,
+    Color? color,
   }) : super(
           position: position,
           size: size,
@@ -31,8 +37,13 @@ class BasketContainer extends PositionComponent
           anchor: anchor,
           priority: priority,
         ) {
-    shape = HitboxRectangle();
-    addHitbox(shape);
+    // shape = HitboxRectangle();
+    // addHitbox(shape);
+    _isFalling = isFalling;
+    if (color != null) {
+      debugColor = color;
+    }
+    init();
   }
 
   @override
@@ -55,14 +66,11 @@ class BasketContainer extends PositionComponent
   //   canvas.drawRect(rect, paint);
   // }
 
-  final Paint hitboxPaint = BasicPalette.red.paint()
-    ..style = PaintingStyle.stroke;
-  final Paint dotPaint = BasicPalette.red.paint()..style = PaintingStyle.stroke;
-
   @override
   void render(Canvas canvas) {
     super.render(canvas);
-    shape.render(canvas, hitboxPaint);
+
+    // renderHitboxes(canvas);
   }
 
   void init() {
@@ -72,11 +80,15 @@ class BasketContainer extends PositionComponent
     );
   }
 
-  void addBasket({required Vector2 position, required bool falling}) {
-    final Basket basket = Basket(
+  void addBasket({
+    required Vector2 position,
+    required bool falling,
+  }) {
+    basket = Basket(
+      this,
       sprite: sprite,
       size: Vector2(kSpriteSize, kSpriteSize),
-      position: position,
+      position: size / 2,
       priority: 1,
       isFalling: falling,
       direction: basketDataManager.getRandomBasketData().getDirection(),
@@ -85,9 +97,16 @@ class BasketContainer extends PositionComponent
     add(basket);
   }
 
+  // get isFalling() => _isFalling;
+  set isFalling(bool value) => _isFalling = value;
+
   @override
   void update(double dt) {
     super.update(dt);
+
+    if (_isFalling == true) {
+      position += Vector2(0, 1) * kSpeedY * dt;
+    }
   }
 
   void goToNextLevel(bool value) {}

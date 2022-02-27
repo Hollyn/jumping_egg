@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flame/components.dart';
+import 'package:flutter/material.dart';
 import 'package:jumping_egg/game/basket.dart';
 import 'package:jumping_egg/game/basket_container.dart';
 import 'package:jumping_egg/game/basket_data_manager.dart';
@@ -9,15 +10,25 @@ import 'package:jumping_egg/helpers/constant.dart';
 
 class BasketManager extends Component with HasGameRef<JumpingEgg> {
   final Sprite sprite;
-  late List<Basket> basketList = [];
+  late List<BasketContainer> basketContainerList = [];
   int _numberOfBasketDisposed = 0;
   BasketDataManager basketDataManager = BasketDataManager();
+  List<Color> colorList = [
+    Colors.green,
+    Colors.blue,
+    Colors.yellow,
+    Colors.grey,
+    Colors.purple,
+    Colors.orange,
+    Colors.cyan,
+  ];
+
+  int colorPosition = 0;
 
   BasketManager({required this.sprite}) : super();
 
   @override
   Future<void> onLoad() async {
-    // Only runs once, when the component is loaded.
     init();
   }
 
@@ -28,65 +39,89 @@ class BasketManager extends Component with HasGameRef<JumpingEgg> {
 
   void init() {
     for (var i = 0; i < 3; i++) {
-      add(
-        BasketContainer(
-          sprite: sprite,
+      addBasketContainer(
           position: Vector2(
             gameRef.size.x / 2,
             (3 - i) * gameRef.size.y / 4,
           ),
-          size: Vector2(150.0, 150.0),
-          anchor: Anchor.center,
-        ),
-      );
-      addBasket(
-        position: Vector2(gameRef.size.x / 2, (3 - i) * gameRef.size.y / 4),
-        falling: false,
-      );
+          falling: false);
     }
   }
 
-  void addBasket({required Vector2 position, required bool falling}) {
-    final Basket basket = Basket(
+  void addBasketContainer({
+    required Vector2 position,
+    required bool falling,
+  }) {
+    final BasketContainer basketContainer = BasketContainer(
       sprite: sprite,
-      size: Vector2(kSpriteSize, kSpriteSize),
+      size: kBasketContainerSize,
+      anchor: Anchor.center,
       position: position,
       priority: 1,
       isFalling: falling,
-      direction: basketDataManager.getRandomBasketData().getDirection(),
+      velocity: basketDataManager.getRandomBasketData().getDirection(),
+      color: colorList[colorPosition++ % colorList.length],
     );
 
-    basketList.add(basket);
-    add(basket);
+    basketContainerList.add(basketContainer);
+    add(basketContainer);
   }
 
-  Basket getBasketAt(int position) {
-    return basketList[position];
+  BasketContainer getBasketContainerAt(int position) {
+    return basketContainerList[position];
   }
 
   @override
   void update(double dt) {
     super.update(dt);
-    // print('middle basket x = ${basketList[1].position.x}');
-    if (children.isNotEmpty && basketList[0].position.y > gameRef.size.y) {
-      remove(basketList[0]);
-      basketList.removeAt(0);
+    // print('${(gameRef.size.y / 4) * 3} ${getBasketContainerAt(2).position.y}');
+    if (getBasketContainerAt(2).position.y >= (gameRef.size.y / 4) * 3) {
+      goToNextLevel(false);
+    }
+    // print('middle basket x = ${basketContainerList[1].position.x}');
+    if (
+        // children.isNotEmpty &&
+        basketContainerList[0].position.y > gameRef.size.y) {
+      remove(basketContainerList[0]);
+      basketContainerList.removeAt(0);
       _numberOfBasketDisposed++; // update number of basket disposed
 
-      addBasket(position: Vector2(gameRef.size.x / 2, 0), falling: true);
+      // if (_numberOfBasketDisposed == 2) {
+      //   goToNextLevel(false);
+      // }
+      print('disposed $_numberOfBasketDisposed');
+      // addBasket(position: Vector2(gameRef.size.x / 2, 0), falling: true);
+    } else {
+      // goToNextLevel(false);
     }
   }
 
   void goToNextLevel(bool value) {
-    print('next level Value: $value');
-    for (var i = 0; i < basketList.length; i++) {
-      basketList[i].isFalling = value;
+    for (var i = 0; i < basketContainerList.length; i++) {
+      // print('i = $i');
+      basketContainerList[i].isFalling = value;
     }
     if (value) {
-      if (basketList.length < 4) {
-        addBasket(position: Vector2(gameRef.size.x / 2, 0), falling: true);
+      print('children before = ${children.length}');
+      // if (basketContainerList.length < 4) {
+      // add 2 basket container
+      for (double i = 0; i < 2; i++) {
+        addBasketContainer(
+          position: Vector2(gameRef.size.x / 2, ((gameRef.size.y / 4) * -i)),
+          falling: true,
+        );
+        // }
       }
     } else {
+      // children.remove(basketContainerList[0]);
+      // children.remove(basketContainerList[0]);
+      // children.remove(basketContainerList[1]);
+      // children.remove(basketContainerList[1]);
+      // basketContainerList.removeAt(0);
+      // basketContainerList.removeAt(1);
+
+      print(basketContainerList.length);
+      print('children = ${children.length}');
       _numberOfBasketDisposed = 0;
     }
   }
@@ -97,7 +132,7 @@ class BasketManager extends Component with HasGameRef<JumpingEgg> {
 
   void resetData() {
     // empty basket list
-    basketList = [];
+    basketContainerList = [];
 
     // remove all basket
     for (var child in children) {
