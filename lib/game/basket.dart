@@ -43,8 +43,15 @@ class Basket extends SpriteComponent with HasGameRef {
   void update(double dt) {
     if (isFalling) {
       position += Vector2(0, 1) * _speed * dt;
-    } else {}
-    // position += _velocity * dt;
+    } else {
+      // position += _velocity * _speed * dt;
+      if (position.y >= gameRef.size.y - 50 ||
+          position.y <= 50 ||
+          position.x >= gameRef.size.x - 50 ||
+          position.x <= 50) {
+        _velocity.negate();
+      }
+    }
   }
 
   @override

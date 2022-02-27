@@ -2,9 +2,13 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:jumping_egg/controllers/server_client_controller.dart';
+import 'package:jumping_egg/helpers/constant.dart';
 import 'package:jumping_egg/main.dart';
+import 'package:jumping_egg/screens/main_menu.dart';
+import 'package:jumping_egg/screens/utils/guest_choose_name.dart';
 import 'package:jumping_egg/screens/utils/guest_list_enum.dart';
 import 'package:jumping_egg/screens/utils/playerEnum.dart';
+import 'package:jumping_egg/screens/widgets/button_text_with_background.dart';
 import 'package:jumping_egg/screens/widgets/guest_widget.dart';
 import 'package:jumping_egg/screens/widgets/host_widget.dart';
 
@@ -26,7 +30,7 @@ class MultiplayerPage extends StatefulWidget {
 
 bool isGuestConnected = false;
 bool isGuestReceiveData = false;
-String guestData = 'nothing yet';
+late String guestData;
 bool isHostConnected = false;
 bool isHostReceiveData = false;
 String hostData = 'nothing yet';
@@ -35,13 +39,19 @@ List<String> guestList = [];
 String guestName = '';
 PlayerEnum playerEnum = PlayerEnum.nothing;
 bool gameAlreadyStart = false;
+late bool isGuestChoseName;
+late GuestChooseName guestChooseName;
 
 class _MultiplayerPageState extends State<MultiplayerPage> {
   @override
   void initState() {
     super.initState();
 
+    guestChooseName = GuestChooseName.nothing;
+    multiplayerGameData.init();
     gameAlreadyStart = false;
+    guestData = '';
+    isGuestChoseName = false;
   }
 
   @override
@@ -49,47 +59,87 @@ class _MultiplayerPageState extends State<MultiplayerPage> {
     return Scaffold(
       body: Column(
         children: [
+          Align(
+            alignment: Alignment.topLeft,
+            child: TextButton(
+                child: Icon(
+                  Icons.arrow_back_rounded,
+                  color: kCharacterColor,
+                  size: 60,
+                ),
+                onPressed: () {
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (context) => MainMenu(
+                        scoreController: scoreController,
+                        serverClientController: serverClientController,
+                        multiplayerGameData: multiplayerGameData,
+                      ),
+                    ),
+                  );
+                }),
+          ),
           Row(
             children: [
               if (playerEnum == PlayerEnum.nothing ||
                   playerEnum == PlayerEnum.host)
                 Expanded(
-                  child: SizedBox(
-                    child: ElevatedButton(
-                      onPressed: (playerEnum == PlayerEnum.host)
-                          ? null
-                          : () {
-                              setState(() {
-                                playerEnum = PlayerEnum.host;
-                                serverClientController.startServer(
-                                  _onHostConnected,
-                                  _onHostReceiveData,
-                                );
-                              });
-                            },
-                      child: Text('Host'),
-                    ),
+                  child: ButtonTextWithBackground(
+                    title: "Host",
+                    onPressed: (playerEnum == PlayerEnum.host)
+                        ? () {}
+                        : () {
+                            setState(() {
+                              playerEnum = PlayerEnum.host;
+                              serverClientController.startServer(
+                                _onHostConnected,
+                                _onHostReceiveData,
+                              );
+                            });
+                          },
                   ),
                 ),
               if (playerEnum == PlayerEnum.nothing ||
                   playerEnum == PlayerEnum.guest)
                 Expanded(
-                  child: SizedBox(
-                    child: ElevatedButton(
-                      onPressed: (playerEnum == PlayerEnum.guest)
-                          ? null
-                          : () {
-                              setState(() {
-                                displayDialog(context);
-                                playerEnum = PlayerEnum.guest;
-                              });
-                            },
-                      child: Text('Guest'),
-                    ),
+                  child: ButtonTextWithBackground(
+                    onPressed: (playerEnum == PlayerEnum.guest)
+                        ? () {}
+                        : () {
+                            setState(() {
+                              displayDialog(context);
+                              playerEnum = PlayerEnum.guest;
+                            });
+                          },
+                    title: 'Guest',
                   ),
                 ),
             ],
           ),
+          SizedBox(
+            height: 24,
+          ),
+          if (playerEnum == PlayerEnum.nothing)
+            Column(
+              children: [
+                const Icon(
+                  Icons.arrow_upward_rounded,
+                  color: kCharacterColor,
+                  size: 60,
+                ),
+                SizedBox(
+                  height: 18,
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: 0, horizontal: 20),
+                  child: Text(
+                    kMultiPlayerInstruction,
+                    textAlign: TextAlign.center,
+                    style: kInstructionTextStyle,
+                  ),
+                ),
+              ],
+            ),
           if (playerEnum == PlayerEnum.host)
             HostWidget(
               serverClientController: serverClientController,
@@ -110,7 +160,9 @@ class _MultiplayerPageState extends State<MultiplayerPage> {
               displayDialog: displayDialog,
               isGuestConnected: isGuestConnected,
               guestData: guestData,
+              isGuestChoseName: isGuestChoseName,
               isGuestReceiveData: isGuestReceiveData,
+              guestChooseName: guestChooseName,
             ),
         ],
       ),
@@ -125,31 +177,69 @@ class _MultiplayerPageState extends State<MultiplayerPage> {
         builder: (_) {
           return AlertDialog(
             elevation: 24,
-            backgroundColor: Colors.white,
-            // shape: CircleBorder(),
-            title: Text('Enter your name'),
-            content: TextField(
-              controller: _textEditingController,
+            backgroundColor: kCardBackgroundColor,
+            // shape: CircleBorder(side: ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(
+                Radius.circular(32.0),
+              ),
+            ),
+            title: Text(
+              'Enter your name',
+              style: kDefaultOverlayTitleStyle,
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'This will help the host to find you',
+                  style: kDialogSubTitleStyle,
+                ),
+                TextField(
+                  controller: _textEditingController,
+                  maxLength: 6,
+                  style: TextStyle(
+                    color: kMainTitleColor,
+                  ),
+                ),
+              ],
             ),
             actions: [
               TextButton(
                 onPressed: () {
                   Navigator.pop(context);
+                  setState(() {
+                    guestChooseName = GuestChooseName.cancel;
+                  });
                 },
-                child: Text('Cancel'),
+                child: Text(
+                  'Cancel',
+                  style: kDefaultDialongButtonStyle,
+                ),
               ),
               TextButton(
                 onPressed: () {
                   widget.serverClientController.clientName =
                       _textEditingController.text;
+                  if (_textEditingController.text != '' &&
+                      (guestChooseName == GuestChooseName.nothing ||
+                          guestChooseName == GuestChooseName.cancel)) {
+                    isGuestChoseName = true;
+                    setState(() {
+                      guestChooseName = GuestChooseName.chosen;
+                    });
 
-                  serverClientController.startClient(
-                    _onGuestConnected,
-                    _onGuestReceiveData,
-                  );
-                  Navigator.pop(context);
+                    serverClientController.startClient(
+                      _onGuestConnected,
+                      _onGuestReceiveData,
+                    );
+                    Navigator.pop(context);
+                  }
                 },
-                child: Text('OK'),
+                child: Text(
+                  'OK',
+                  style: kDefaultDialongButtonStyle,
+                ),
               ),
             ],
           );
@@ -173,12 +263,14 @@ class _MultiplayerPageState extends State<MultiplayerPage> {
     guestList = [];
     guestName = '';
     playerEnum = PlayerEnum.nothing;
-    // if (serverClientController.isServerRunning) {
-    //   serverClientController.disposeServer();
-    // }
-    // if (serverClientController.isClientRunning) {
-    //   serverClientController.disposeClient();
-    // }
+    if (widget.multiplayerGameData.gameStart == false) {
+      if (serverClientController.isServerRunning) {
+        serverClientController.disposeServer();
+      }
+      if (serverClientController.isClientRunning) {
+        serverClientController.disposeClient();
+      }
+    }
   }
 
   void _onGuestConnected(bool isConnected, String dataReceived) {

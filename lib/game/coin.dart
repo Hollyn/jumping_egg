@@ -38,15 +38,15 @@ class Coin extends SpriteComponent with HasHitboxes, Collidable, HasGameRef {
     }
   }
 
-  final Paint hitboxPaint = BasicPalette.red.paint()
-    ..style = PaintingStyle.stroke;
-  final Paint dotPaint = BasicPalette.red.paint()..style = PaintingStyle.stroke;
-
-  @override
-  void render(Canvas canvas) {
-    super.render(canvas);
-    shape.render(canvas, hitboxPaint);
-  }
+  // final Paint hitboxPaint = BasicPalette.red.paint()
+  //   ..style = PaintingStyle.stroke;
+  // final Paint dotPaint = BasicPalette.red.paint()..style = PaintingStyle.stroke;
+  //
+  // @override
+  // void render(Canvas canvas) {
+  //   super.render(canvas);
+  //   shape.render(canvas, hitboxPaint);
+  // }
 
   @override
   void update(double dt) {

@@ -13,6 +13,7 @@ const double boost = -700.0;
 bool _isCollectCoin = false;
 
 late HitboxCircle shape;
+int timeLastCoinCollected = DateTime.now().microsecondsSinceEpoch;
 
 class Player extends SpriteComponent with HasHitboxes, Collidable {
   double _speedY = 0.0;
@@ -53,17 +54,24 @@ class Player extends SpriteComponent with HasHitboxes, Collidable {
     if (other is Coin) {
       _isCollectCoin = true;
     }
+    // print(DateTime.now().microsecondsSinceEpoch);
   }
 
   @override
   void update(double dt) {
+    super.update(dt);
     if (_isCollectCoin) {
-      if (gameRef.scoreController.getPlayerData().soundEffect) {
-        // gameRef.soundPlayerComponent.playSound('collect_coin.wav');
+      // if (gameRef.scoreController.getPlayerData().soundEffect) {
+      //   // gameRef.soundPlayerComponent.playSound('collect_coin.wav');
+      // }
+      if (DateTime.now().microsecondsSinceEpoch - timeLastCoinCollected >
+          1000000) {
+        print(DateTime.now().microsecondsSinceEpoch - timeLastCoinCollected);
+        gameRef.addCoinToUserData(_coin++);
       }
-      _coin++;
-      gameRef.addCoinToUserData();
+
       _isCollectCoin = false;
+      timeLastCoinCollected = DateTime.now().microsecondsSinceEpoch;
     }
 
     super.update(dt);
@@ -195,13 +203,13 @@ class Player extends SpriteComponent with HasHitboxes, Collidable {
     _coin = value;
   }
 
-  final Paint hitboxPaint = BasicPalette.red.paint()
-    ..style = PaintingStyle.stroke;
-  final Paint dotPaint = BasicPalette.red.paint()..style = PaintingStyle.stroke;
-
-  @override
-  void render(Canvas canvas) {
-    super.render(canvas);
-    shape.render(canvas, hitboxPaint);
-  }
+  // final Paint hitboxPaint = BasicPalette.red.paint()
+  //   ..style = PaintingStyle.stroke;
+  // final Paint dotPaint = BasicPalette.red.paint()..style = PaintingStyle.stroke;
+  //
+  // @override
+  // void render(Canvas canvas) {
+  //   super.render(canvas);
+  //   shape.render(canvas, hitboxPaint);
+  // }
 }

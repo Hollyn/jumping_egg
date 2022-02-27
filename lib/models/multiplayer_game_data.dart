@@ -17,14 +17,7 @@ class MultiplayerGameData {
     this.gameOver,
     this.guestConnected,
   }) {
-    gameStart = false;
-    hostScore = 0;
-    guestScore = 0;
-    guestDied = false;
-    hostDied = false;
-    gameOver = false;
-    guestConnected = false;
-    hostConnected = false;
+    init();
   }
 
   void fromJson(Map<String, dynamic> json) {
@@ -60,5 +53,16 @@ class MultiplayerGameData {
     data['host_died'] = hostDied;
     data['game_over'] = gameOver;
     return data;
+  }
+
+  void init() {
+    gameStart = false;
+    hostScore = 0;
+    guestScore = 0;
+    guestDied = false;
+    hostDied = false;
+    gameOver = false;
+    guestConnected = false;
+    hostConnected = false;
   }
 }

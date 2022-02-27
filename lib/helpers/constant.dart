@@ -24,6 +24,8 @@ const kStartRelativePosition = 0;
 const kTopRelativePosition = 2;
 const kBoxScoreName = 'playerdata';
 const kCharacterColor = Color(0xff8F563B);
+const kMainTitleColor = Color(0xff663931);
+const kCardBackgroundColor = Color(0xffffecd3);
 const kCoinSize = 40.0;
 const kEggSize = 96.0;
 const kBgComponentWidth = 144.0;
@@ -33,14 +35,59 @@ const kTextMargin = 3.0;
 Vector2 kGameResolution = Vector2(360.0, 640);
 const kDefaultOverlayTitleStyle = TextStyle(
   fontSize: 24.0,
-  backgroundColor: Colors.red,
+  color: kMainTitleColor,
+);
+const kDefaultDialongButtonStyle = TextStyle(
+  color: kCharacterColor,
+);
+const kGameTitleStyle = TextStyle(
+  fontSize: 48.0,
+  color: Color(0xff663931),
+);
+
+const kGameSubTitleStyle = TextStyle(
+  fontSize: 18.0,
+  color: kCharacterColor,
+);
+const kDialogSubTitleStyle = TextStyle(
+  fontSize: 14.0,
+  color: kCharacterColor,
+);
+
+const kInstructionTextStyle = TextStyle(
+  fontSize: 24.0,
+  color: kCharacterColor,
+  shadows: <Shadow>[
+    Shadow(
+      offset: Offset(1.0, 1.0),
+      // blurRadius: 10.0,
+      color: Color.fromARGB(255, 0, 0, 0),
+    ),
+    // Shadow(
+    //   offset: Offset(10.0, 10.0),
+    //   blurRadius: 8.0,
+    //   color: Color.fromARGB(125, 0, 0, 255),
+    // ),
+  ],
 );
 
 BoxDecoration kDefaultOverlayBoxDecoration = BoxDecoration(
   border: Border.all(
-    color: Colors.black,
+    color: Color(0xff663931),
     width: 8,
   ),
   borderRadius: BorderRadius.circular(12),
-  color: Colors.blue,
+  color: Color(0x55fde2be),
 );
+BoxDecoration kListItemBoxDecoration = BoxDecoration(
+  border: Border.all(
+    color: Color(0xff663931),
+    width: 4,
+  ),
+  borderRadius: BorderRadius.circular(6),
+  color: Color(0xfffde2be),
+);
+const kMultiPlayerInstruction =
+    'If you want to play with your friend, you can choose to be the host and you friend to be the guest or vice versa.';
+const kSelectGuestText = 'Select a guest: ';
+const kTryAgainText = 'Retry if you cannot see your friend';

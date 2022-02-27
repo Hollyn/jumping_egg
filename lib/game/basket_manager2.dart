@@ -7,18 +7,18 @@ import 'package:jumping_egg/game/basket_data_manager.dart';
 import 'package:jumping_egg/game/game.dart';
 import 'package:jumping_egg/helpers/constant.dart';
 
-class BasketManager extends Component with HasGameRef<JumpingEgg> {
+class BasketManager2 extends Component with HasGameRef<JumpingEgg> {
   final Sprite sprite;
   late List<Basket> basketList = [];
   int _numberOfBasketDisposed = 0;
   BasketDataManager basketDataManager = BasketDataManager();
 
-  BasketManager({required this.sprite}) : super();
+  BasketManager2({required this.sprite}) : super();
 
   @override
   Future<void> onLoad() async {
     // Only runs once, when the component is loaded.
-    init();
+    // init();
   }
 
   @override

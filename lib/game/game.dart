@@ -203,9 +203,9 @@ class JumpingEgg extends FlameGame with TapDetector, HasCollidables {
     player = Player(
       sprite: Sprite(images.fromCache('sprites/egg.png')),
       size: Vector2(kEggSize, kEggSize),
-      position: basketManager.getBasketAt(nestNumber2).position,
+      position: Vector2.zero(), // basketManager.getBasketAt(0).position,
       priority: 0,
-      initCoin: scoreController.getHighestScore(),
+      initCoin: scoreController.getCoin(),
       gameRef: this,
     );
 
@@ -241,6 +241,7 @@ class JumpingEgg extends FlameGame with TapDetector, HasCollidables {
   @override
   void update(double dt) {
     super.update(dt);
+
     // update score and health
     score.text = '${player.getCurrentScore()}';
     if (isMultiPlayer) {
@@ -270,7 +271,8 @@ class JumpingEgg extends FlameGame with TapDetector, HasCollidables {
       }
       player.position = basketManager
           .getBasketAt(player.getCurrentRelativePosition())
-          .position;
+          .position
+          .clone();
       player.reset();
       // decrease life
       player.decreaseHealth();
@@ -284,46 +286,48 @@ class JumpingEgg extends FlameGame with TapDetector, HasCollidables {
       return;
     }
 
-    // landing on a basket
-    if (player.getSpeedY() > 0 &&
-            player.bottom >
-                basketManager
-                    .getBasketAt(player.getNextRelativePosition())
-                    .top &&
-            player.bottom <=
-                basketManager
-                    .getBasketAt(player.getNextRelativePosition())
-                    .bottom
-        // &&
-        // player.left >= basketManager.getBasketAt(nestNumber + 1).left + 5 &&
-        // player.right <= basketManager.getBasketAt(nestNumber + 1).right - 5
-        ) {
-      if (scoreController.getPlayerData().soundEffect) {
-        // soundPlayerComponent.playSound('landing.mp3');
-      }
-      player.updateRelativePosition();
-      player.reset();
-      player.increaseScore();
-      scoreController.setHighestScore(player.getCurrentScore());
-
-      if (isMultiPlayer) {
-        String clientName = serverClientController.clientName;
-        print(clientName);
-        if (serverClientController.isServerRunning) {
-          multiplayerGameData.hostScore = player.getCurrentScore();
-          serverClientController.serverToClient(
-            clientName,
-            jsonEncode(multiplayerGameData.toJson()),
-          );
-        } else {
-          multiplayerGameData.guestScore = player.getCurrentScore();
-          serverClientController.clientToServer(
-            jsonEncode(multiplayerGameData.toJson()),
-          );
+    // going down
+    if (player.getSpeedY() > 0) {
+      // landing on a basket
+      if (player.bottom >
+                  basketManager
+                      .getBasketAt(player.getNextRelativePosition())
+                      .top &&
+              player.bottom <=
+                  basketManager
+                      .getBasketAt(player.getNextRelativePosition())
+                      .bottom
+          // &&
+          // player.left >= basketManager.getBasketAt(nestNumber + 1).left + 5 &&
+          // player.right <= basketManager.getBasketAt(nestNumber + 1).right - 5
+          ) {
+        if (scoreController.getPlayerData().soundEffect) {
+          // soundPlayerComponent.playSound('landing.mp3');
         }
-      }
-      if (player.isInTopRelativePosition()) {
-        goToNextLevel(value: true);
+        player.updateRelativePosition();
+        player.reset();
+        player.increaseScore();
+        scoreController.setHighestScore(player.getCurrentScore());
+
+        if (isMultiPlayer) {
+          String clientName = serverClientController.clientName;
+          print(clientName);
+          if (serverClientController.isServerRunning) {
+            multiplayerGameData.hostScore = player.getCurrentScore();
+            serverClientController.serverToClient(
+              clientName,
+              jsonEncode(multiplayerGameData.toJson()),
+            );
+          } else {
+            multiplayerGameData.guestScore = player.getCurrentScore();
+            serverClientController.clientToServer(
+              jsonEncode(multiplayerGameData.toJson()),
+            );
+          }
+        }
+        if (player.isInTopRelativePosition()) {
+          goToNextLevel(value: true);
+        }
       }
     }
 
@@ -335,8 +339,10 @@ class JumpingEgg extends FlameGame with TapDetector, HasCollidables {
     }
 
     if (goingToNextLevel2) {
-      player.setRelativePosition(player.getTopRelativePosition() -
-          basketManager.getNumberOfBasketDisposed());
+      player.setRelativePosition(
+        player.getTopRelativePosition() -
+            basketManager.getNumberOfBasketDisposed(),
+      );
       if (basketManager.getNumberOfBasketDisposed() ==
           player.getTopRelativePosition()) {
         goToNextLevel(value: false);
@@ -384,8 +390,8 @@ class JumpingEgg extends FlameGame with TapDetector, HasCollidables {
     }
   }
 
-  void addCoinToUserData() {
-    scoreController.addCoin();
+  void addCoinToUserData(int value) {
+    scoreController.addCoin(value);
   }
 
   void toggleParallax(bool move) {

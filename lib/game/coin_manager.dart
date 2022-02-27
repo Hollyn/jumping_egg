@@ -15,7 +15,7 @@ class CoinManager extends Component {
   late List<Coin> coinList;
   CoinManager({required this.sprite, required this.gameRef}) {
     random = Random();
-    timer = Timer(5, onTick: _spawnCoin, repeat: true);
+    timer = Timer(60, onTick: _spawnCoin, repeat: true);
   }
 
   void _spawnCoin() {
@@ -42,9 +42,10 @@ class CoinManager extends Component {
     final Vector2 coinPosition =
         gameRef.basketManager.getBasketAt(position).position.clone();
     coin = Coin(
-        sprite: sprite,
-        size: Vector2(kCoinSize, kCoinSize),
-        position: coinPosition);
+      sprite: sprite,
+      size: Vector2(kCoinSize, kCoinSize),
+      position: coinPosition,
+    );
     gameRef.add(coin);
   }
 

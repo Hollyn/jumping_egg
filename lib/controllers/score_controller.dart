@@ -40,9 +40,9 @@ class ScoreController {
     }
   }
 
-  void addCoin() {
+  void addCoin(int value) {
     final UserData userData = _box.get(kBoxScoreName) as UserData;
-    userData.coin = userData.coin + 1;
+    userData.coin = value;
     userData.save();
   }
 
