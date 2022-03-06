@@ -25,7 +25,8 @@ class BasketManager extends Component with HasGameRef<JumpingEgg> {
 
   int colorPosition = 0;
 
-  BasketManager({required this.sprite}) : super();
+  final bool isMultiplayer;
+  BasketManager({required this.sprite, required this.isMultiplayer}) : super();
 
   @override
   Future<void> onLoad() async {
@@ -52,6 +53,7 @@ class BasketManager extends Component with HasGameRef<JumpingEgg> {
     required Vector2 position,
     required bool falling,
   }) {
+    print('isMultiplayer : $isMultiplayer');
     final BasketContainer basketContainer = BasketContainer(
       sprite: sprite,
       size: kBasketContainerSize,
@@ -59,7 +61,9 @@ class BasketManager extends Component with HasGameRef<JumpingEgg> {
       position: position,
       priority: 1,
       isFalling: falling,
-      velocity: basketDataManager.getRandomBasketData().getDirection(),
+      velocity: isMultiplayer
+          ? basketDataManager.getBasketDataForMultiplayerGame().getDirection()
+          : basketDataManager.getRandomBasketData().getDirection(),
       color: colorList[colorPosition++ % colorList.length],
     );
 

@@ -190,8 +190,10 @@ class JumpingEgg extends FlameGame with TapDetector, HasCollidables {
     // soundPlayerComponent = SoundPlayerComponent(gameRef: this);
     // add(soundPlayerComponent);
 
-    basketManager =
-        BasketManager(sprite: Sprite(images.fromCache('sprites/basket.png')));
+    basketManager = BasketManager(
+      sprite: Sprite(images.fromCache('sprites/basket.png')),
+      isMultiplayer: isMultiPlayer,
+    );
     add(basketManager);
 
     // create player

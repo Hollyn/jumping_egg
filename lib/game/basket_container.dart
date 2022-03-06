@@ -17,6 +17,7 @@ class BasketContainer extends PositionComponent with HasGameRef<JumpingEgg> {
   final Sprite sprite;
   late bool _isFalling;
   BasketDataManager basketDataManager = BasketDataManager();
+  Vector2 _velocity = Vector2.zero();
 
   BasketContainer({
     required this.sprite,
@@ -27,7 +28,7 @@ class BasketContainer extends PositionComponent with HasGameRef<JumpingEgg> {
     Anchor? anchor,
     int? priority,
     required bool isFalling,
-    Vector2? velocity,
+    required Vector2 velocity,
     Color? color,
   }) : super(
           position: position,
@@ -37,6 +38,7 @@ class BasketContainer extends PositionComponent with HasGameRef<JumpingEgg> {
           anchor: anchor,
           priority: priority,
         ) {
+    _velocity = velocity;
     // shape = HitboxRectangle();
     // addHitbox(shape);
     _isFalling = isFalling;
@@ -91,7 +93,7 @@ class BasketContainer extends PositionComponent with HasGameRef<JumpingEgg> {
       position: size / 2,
       priority: 1,
       isFalling: falling,
-      direction: basketDataManager.getRandomBasketData().getDirection(),
+      direction: _velocity,
     );
 
     add(basket);
