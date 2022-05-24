@@ -61,9 +61,9 @@ class Player extends SpriteComponent with HasHitboxes, Collidable {
   void update(double dt) {
     super.update(dt);
     if (_isCollectCoin) {
-      // if (gameRef.scoreController.getPlayerData().soundEffect) {
-      //   // gameRef.soundPlayerComponent.playSound('collect_coin.wav');
-      // }
+      if (gameRef.scoreController.getPlayerData().soundEffect) {
+        gameRef.soundPlayerComponent.playSound('collect_coin.wav');
+      }
       if (DateTime.now().microsecondsSinceEpoch - timeLastCoinCollected >
           1000000) {
         print(DateTime.now().microsecondsSinceEpoch - timeLastCoinCollected);
@@ -104,7 +104,7 @@ class Player extends SpriteComponent with HasHitboxes, Collidable {
     if (_canJump) {
       _speedY = kPlayerBoost;
       if (gameRef.scoreController.getPlayerData().soundEffect) {
-        // gameRef.soundPlayerComponent.playSound('jump.mp3');
+        gameRef.soundPlayerComponent.playSound('jump.mp3');
       }
     }
     _canJump = false;

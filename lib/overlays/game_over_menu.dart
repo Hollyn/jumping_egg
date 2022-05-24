@@ -15,13 +15,11 @@ class GameOverMenu extends StatelessWidget {
   final JumpingEgg gameRef;
   static const ID = 'GameOverMenu';
   final ScoreController scoreController;
-  final ServerClientController serverClientController;
   final MultiplayerGameData multiplayerGameData;
   const GameOverMenu({
     Key? key,
     required this.gameRef,
     required this.scoreController,
-    required this.serverClientController,
     required this.multiplayerGameData,
   }) : super(key: key);
 
@@ -63,7 +61,6 @@ class GameOverMenu extends StatelessWidget {
                         MaterialPageRoute(
                           builder: (context) => MainMenu(
                             scoreController: scoreController,
-                            serverClientController: serverClientController,
                             multiplayerGameData: multiplayerGameData,
                           ),
                         ),

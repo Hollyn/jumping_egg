@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flame/components.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
@@ -14,15 +13,12 @@ import 'package:jumping_egg/game/game_text.dart';
 import 'package:jumping_egg/game/nest.dart';
 import 'package:jumping_egg/game/nest_data_manager.dart';
 import 'package:jumping_egg/game/player.dart';
-// import 'package:jumping_egg/game/sound_player_component.dart';
+import 'package:jumping_egg/game/sound_player_component.dart';
 import 'package:jumping_egg/helpers/constant.dart';
-import 'package:jumping_egg/main.dart';
 import 'package:jumping_egg/models/multiplayer_game_data.dart';
 import 'package:jumping_egg/overlays/game_over_menu.dart';
 import 'package:jumping_egg/overlays/pause_menu.dart';
 import 'package:jumping_egg/overlays/sound_pause_buttons.dart';
-
-import '../overlays/game_over_multiplayer.dart';
 
 late ParallaxComponent parallaxComponent;
 NestDataManager nestDataManager = NestDataManager();
@@ -35,10 +31,8 @@ late TextComponent coin;
 class JumpingEgg extends FlameGame with TapDetector, HasCollidables {
   final ScoreController scoreController;
   final MultiplayerGameData multiplayerGameData;
-  bool isMultiPlayer;
   JumpingEgg({
     required this.scoreController,
-    required this.isMultiPlayer,
     required this.multiplayerGameData,
   });
 
@@ -49,7 +43,7 @@ class JumpingEgg extends FlameGame with TapDetector, HasCollidables {
   bool goingToNextLevel = false;
   late BasketManager basketManager;
   late CoinManager coinManager;
-  // late SoundPlayerComponent soundPlayerComponent;
+  late SoundPlayerComponent soundPlayerComponent;
 
   List<ParallaxImageData> imagesParallax = [
     ParallaxImageData('parallax/background.png'),
@@ -93,106 +87,57 @@ class JumpingEgg extends FlameGame with TapDetector, HasCollidables {
         ..position = Vector2(kBgComponentMargin, kBgComponentMargin)
         ..anchor = Anchor.topLeft,
     );
-    if (isMultiPlayer) {
-      if (serverClientController.isClientRunning) {
-        add(
-          SpriteComponent()
-            ..sprite = Sprite(
-              images.fromCache('bg_component/hostBg.png'),
-            )
-            ..size = Vector2(kBgComponentWidth, kBgComponentHeight)
-            ..position = Vector2(
-              kBgComponentMargin,
-              kBgComponentHeight + kBgComponentMargin,
-            )
-            ..anchor = Anchor.topLeft,
-        );
-      } else {
-        add(
-          SpriteComponent()
-            ..sprite = Sprite(
-              images.fromCache('bg_component/guestBg.png'),
-            )
-            ..size = Vector2(kBgComponentWidth, kBgComponentHeight)
-            ..position = Vector2(
-                kBgComponentMargin, kBgComponentHeight + kBgComponentMargin)
-            ..anchor = Anchor.topLeft,
-        );
-      }
 
-      scorePlayer2 = GameText(
-        text: (serverClientController.isClientRunning) ? '0' : '0',
-        anchor: Anchor.topLeft,
-        position: Vector2(
-          (kBgComponentWidth / 2) + kTextMargin + kBgComponentMargin + 2,
-          kBgComponentHeight * 1.5 + kTextMargin - 8,
-        ),
-      );
-      add(scorePlayer2);
+    add(
+      SpriteComponent()
+        ..sprite = Sprite(
+          images.fromCache('bg_component/healthBg.png'),
+        )
+        ..size = Vector2(kBgComponentWidth, kBgComponentHeight)
+        ..position = Vector2(size.x - kBgComponentMargin, kBgComponentMargin)
+        ..anchor = Anchor.topRight,
+    );
+    add(
+      SpriteComponent()
+        ..sprite = Sprite(
+          images.fromCache('bg_component/coinBg.png'),
+        )
+        ..size = Vector2(kBgComponentWidth, kBgComponentHeight)
+        ..position = Vector2(kBgComponentMargin, size.y - kBgComponentMargin)
+        ..anchor = Anchor.bottomLeft,
+    );
+    coinManager = CoinManager(
+      sprite: Sprite(images.fromCache('sprites/coin.png')),
+      gameRef: this,
+    );
+    add(coinManager);
 
-      infoPlayer2 = GameText(
-        text: '',
-        anchor: Anchor.topLeft,
-        position: Vector2(
-          kTextMargin + kBgComponentMargin + 12,
-          kBgComponentHeight * 2 + kTextMargin + 10,
-        ),
-      );
+    health = GameText(
+      text: kStartHealth.toString(),
+      anchor: Anchor.topRight,
+      position: Vector2(
+        size.x - (kBgComponentWidth / 2) - kBgComponentMargin - kTextMargin,
+        (kBgComponentHeight / 2) + kTextMargin - 10,
+      ),
+    );
 
-      add(infoPlayer2);
-    } else {
-      add(
-        SpriteComponent()
-          ..sprite = Sprite(
-            images.fromCache('bg_component/healthBg.png'),
-          )
-          ..size = Vector2(kBgComponentWidth, kBgComponentHeight)
-          ..position = Vector2(size.x - kBgComponentMargin, kBgComponentMargin)
-          ..anchor = Anchor.topRight,
-      );
-      add(
-        SpriteComponent()
-          ..sprite = Sprite(
-            images.fromCache('bg_component/coinBg.png'),
-          )
-          ..size = Vector2(kBgComponentWidth, kBgComponentHeight)
-          ..position = Vector2(kBgComponentMargin, size.y - kBgComponentMargin)
-          ..anchor = Anchor.bottomLeft,
-      );
-      coinManager = CoinManager(
-        sprite: Sprite(images.fromCache('sprites/coin.png')),
-        gameRef: this,
-      );
-      add(coinManager);
+    coin = GameText(
+      text: '',
+      anchor: Anchor.bottomLeft,
+      position: Vector2(
+        kBgComponentWidth / 2 + kBgComponentMargin + kTextMargin + 1,
+        size.y - kBgComponentHeight / 2 + kTextMargin + 13,
+      ),
+    );
 
-      health = GameText(
-        text: kStartHealth.toString(),
-        anchor: Anchor.topRight,
-        position: Vector2(
-          size.x - (kBgComponentWidth / 2) - kBgComponentMargin - kTextMargin,
-          (kBgComponentHeight / 2) + kTextMargin - 10,
-        ),
-      );
+    add(health);
+    add(coin);
 
-      coin = GameText(
-        text: '',
-        anchor: Anchor.bottomLeft,
-        position: Vector2(
-          kBgComponentWidth / 2 + kBgComponentMargin + kTextMargin + 1,
-          size.y - kBgComponentHeight / 2 + kTextMargin + 13,
-        ),
-      );
-
-      add(health);
-      add(coin);
-    }
-
-    // soundPlayerComponent = SoundPlayerComponent(gameRef: this);
-    // add(soundPlayerComponent);
+    soundPlayerComponent = SoundPlayerComponent(gameRef: this);
+    add(soundPlayerComponent);
 
     basketManager = BasketManager(
       sprite: Sprite(images.fromCache('sprites/basket.png')),
-      isMultiplayer: isMultiPlayer,
     );
     add(basketManager);
 
@@ -242,35 +187,16 @@ class JumpingEgg extends FlameGame with TapDetector, HasCollidables {
 
     // update score and health
     score.text = '${player.getCurrentScore()}';
-    if (isMultiPlayer) {
-      if (serverClientController.isClientRunning) {
-        scorePlayer2.text = '${multiplayerGameData.hostScore}';
-      } else {
-        scorePlayer2.text = '${multiplayerGameData.guestScore}';
-      }
 
-      if (serverClientController.isClientRunning &&
-          multiplayerGameData.hostDied == true) {
-        infoPlayer2.text = 'Host died';
-      }
-      if (serverClientController.isServerRunning &&
-          multiplayerGameData.guestDied == true) {
-        infoPlayer2.text = 'Guest died';
-      }
-    } else {
-      health.text = '${player.getCurrentHealth()}';
-      coin.text = '${player.getCurrentCoin()}';
-    }
+    health.text = '${player.getCurrentHealth()}';
+    coin.text = '${player.getCurrentCoin()}';
 
     // if player dies, reset to the last position
     if (player.isDead()) {
-      if (isMultiPlayer) {
-        gameOverMultiplayer();
-      }
       // decrease life
       player.decreaseHealth();
 
-      if (player.getCurrentHealth() == 0 && !isMultiPlayer) {
+      if (player.getCurrentHealth() == 0) {
         health.text = ' 0';
         overlays.remove(SoundPauseButtons.ID);
         overlays.add(GameOverMenu.ID);
@@ -298,29 +224,13 @@ class JumpingEgg extends FlameGame with TapDetector, HasCollidables {
               positionBasketInGame(player.getNextRelativePosition()).x +
                   kSpriteSize / 2) {
         if (scoreController.getPlayerData().soundEffect) {
-          // soundPlayerComponent.playSound('landing.mp3');
+          soundPlayerComponent.playSound('landing.mp3');
         }
         player.updateRelativePosition();
         player.reset();
         player.increaseScore();
         scoreController.setHighestScore(player.getCurrentScore());
 
-        if (isMultiPlayer) {
-          String clientName = serverClientController.clientName;
-          // print(clientName);
-          if (serverClientController.isServerRunning) {
-            multiplayerGameData.hostScore = player.getCurrentScore();
-            serverClientController.serverToClient(
-              clientName,
-              jsonEncode(multiplayerGameData.toJson()),
-            );
-          } else {
-            multiplayerGameData.guestScore = player.getCurrentScore();
-            serverClientController.clientToServer(
-              jsonEncode(multiplayerGameData.toJson()),
-            );
-          }
-        }
         if (player.isInTopRelativePosition()) {
           goToNextLevel(value: true);
         }
@@ -424,28 +334,9 @@ class JumpingEgg extends FlameGame with TapDetector, HasCollidables {
 
   void playBackgroundMusic() {
     if (scoreController.getPlayerData().music) {
-      // soundPlayerComponent.playBGM();
+      soundPlayerComponent.playBGM();
     } else {
-      // soundPlayerComponent.stopBGM();
-    }
-  }
-
-  void gameOverMultiplayer() {
-    pauseEngine();
-    overlays.add(GameOverMultiPlayer.ID);
-    if (serverClientController.isServerRunning) {
-      multiplayerGameData.hostDied = true;
-      serverClientController.serverToClient(
-        serverClientController.clientName,
-        json.encode(multiplayerGameData.toJson()),
-      );
-    }
-
-    if (serverClientController.isClientRunning) {
-      multiplayerGameData.guestDied = true;
-      serverClientController.clientToServer(
-        json.encode(multiplayerGameData.toJson()),
-      );
+      soundPlayerComponent.stopBGM();
     }
   }
 }

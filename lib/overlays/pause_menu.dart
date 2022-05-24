@@ -13,14 +13,12 @@ class PauseMenu extends StatelessWidget {
   final JumpingEgg gameRef;
   static const ID = 'PauseMenu';
   final ScoreController scoreController;
-  final ServerClientController serverClientController;
   final MultiplayerGameData multiplayerGameData;
   final bool? isMultiplayer;
   const PauseMenu({
     Key? key,
     required this.gameRef,
     required this.scoreController,
-    required this.serverClientController,
     required this.multiplayerGameData,
     this.isMultiplayer,
   }) : super(key: key);
@@ -72,7 +70,6 @@ class PauseMenu extends StatelessWidget {
                         MaterialPageRoute(
                           builder: (context) => MainMenu(
                             scoreController: scoreController,
-                            serverClientController: serverClientController,
                             multiplayerGameData: multiplayerGameData,
                           ),
                         ),

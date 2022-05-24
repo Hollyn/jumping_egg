@@ -9,20 +9,17 @@ import 'package:jumping_egg/overlays/sound_settings_menu.dart';
 
 import '../controllers/server_client_controller.dart';
 import '../models/multiplayer_game_data.dart';
-import '../overlays/game_over_multiplayer.dart';
 
 // TODO: initialize the jumping egg game here
 // JumpingEgg _game = JumpingEgg(scoreController: scoreController);
 
 class GamePlay extends StatefulWidget {
   final ScoreController scoreController;
-  final ServerClientController serverClientController;
   final MultiplayerGameData multiplayerGameData;
   final bool isMultiPlayer;
   const GamePlay({
     Key? key,
     required this.scoreController,
-    required this.serverClientController,
     required this.multiplayerGameData,
     required this.isMultiPlayer,
   }) : super(key: key);
@@ -40,7 +37,6 @@ class _GamePlayState extends State<GamePlay> {
         child: GameWidget(
           game: JumpingEgg(
             scoreController: widget.scoreController,
-            isMultiPlayer: widget.isMultiPlayer,
             multiplayerGameData: widget.multiplayerGameData,
           ),
           initialActiveOverlays: [SoundPauseButtons.ID],
@@ -53,7 +49,6 @@ class _GamePlayState extends State<GamePlay> {
                 PauseMenu(
                   gameRef: gameRef,
                   scoreController: widget.scoreController,
-                  serverClientController: widget.serverClientController,
                   multiplayerGameData: widget.multiplayerGameData,
                   isMultiplayer: widget.isMultiPlayer,
                 ),
@@ -61,7 +56,6 @@ class _GamePlayState extends State<GamePlay> {
                 GameOverMenu(
                   gameRef: gameRef,
                   scoreController: widget.scoreController,
-                  serverClientController: widget.serverClientController,
                   multiplayerGameData: widget.multiplayerGameData,
                 ),
             SoundSettingsMenu.ID: (BuildContext context, JumpingEgg gameRef) =>
@@ -69,30 +63,9 @@ class _GamePlayState extends State<GamePlay> {
                   gameRef: gameRef,
                   scoreController: widget.scoreController,
                 ),
-            GameOverMultiPlayer.ID:
-                (BuildContext context, JumpingEgg gameRef) =>
-                    GameOverMultiPlayer(
-                      gameRef: gameRef,
-                      scoreController: widget.scoreController,
-                      serverClientController: widget.serverClientController,
-                      multiplayerGameData: widget.multiplayerGameData,
-                    ),
           },
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-
-    if (widget.isMultiPlayer) {
-      if (widget.serverClientController.isServerRunning) {
-        widget.serverClientController.disposeServer();
-      } else if (widget.serverClientController.isClientRunning) {
-        widget.serverClientController.disposeClient();
-      }
-    }
   }
 }
