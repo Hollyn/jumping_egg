@@ -1,12 +1,9 @@
-import 'dart:ui';
-
 import 'package:flame/components.dart';
 import 'package:flame/geometry.dart';
-import 'package:flame/palette.dart';
+import 'package:jumping_egg/game/coin.dart';
+// import 'package:flame/palette.dart';
 import 'package:jumping_egg/game/game.dart';
 import 'package:jumping_egg/helpers/constant.dart';
-
-import 'coin.dart';
 
 bool _isCollectCoin = false;
 
@@ -66,7 +63,7 @@ class Player extends SpriteComponent with HasHitboxes, Collidable {
       }
       if (DateTime.now().microsecondsSinceEpoch - timeLastCoinCollected >
           1000000) {
-        print(DateTime.now().microsecondsSinceEpoch - timeLastCoinCollected);
+        // print(DateTime.now().microsecondsSinceEpoch - timeLastCoinCollected);
         gameRef.addCoinToUserData(_coin++);
       }
 
@@ -84,7 +81,7 @@ class Player extends SpriteComponent with HasHitboxes, Collidable {
 
     if (y > gameRef.size.y + kEggSize) {
       if (gameRef.scoreController.getPlayerData().soundEffect) {
-        // gameRef.soundPlayerComponent.playSound('fall.wav');
+        gameRef.soundPlayerComponent.playSound('fall.wav');
       }
       _dead = true;
     }

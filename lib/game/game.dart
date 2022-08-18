@@ -292,7 +292,7 @@ class JumpingEgg extends FlameGame with TapDetector, HasCollidables {
   void lifecycleStateChange(AppLifecycleState state) {
     switch (state) {
       case AppLifecycleState.resumed:
-        // soundPlayerComponent.playBGM();
+        soundPlayerComponent.playBGM();
         break;
       case AppLifecycleState.inactive:
         singlePlayerGameOver();

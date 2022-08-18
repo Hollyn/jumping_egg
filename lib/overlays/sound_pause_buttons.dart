@@ -23,15 +23,15 @@ class SoundPauseButtons extends StatelessWidget {
             },
             child: Image.asset('assets/images/buttons/pause_button.png'),
           ),
-          // TextButton(
-          //   onPressed: () {
-          //     gameRef.overlays.remove(SoundPauseButtons.ID);
-          //     gameRef.overlays.add(SoundSettingsMenu.ID);
-          //     gameRef.pauseEngine();
-          //   },
-          //   child:
-          //       Image.asset('assets/images/buttons/sound_options_button.png'),
-          // ),
+            TextButton(
+              onPressed: () {
+                gameRef.overlays.remove(SoundPauseButtons.ID);
+                gameRef.overlays.add(SoundSettingsMenu.ID);
+                gameRef.pauseEngine();
+              },
+              child:
+                  Image.asset('assets/images/buttons/sound_options_button.png'),
+            ),
         ],
       ),
     );
